@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brain Test Quiz</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #111827, #1e3a8a);
+  color: white;
+  min-height: 100vh;
+}
+
+.app {
+  width: 100%;
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.stats {
+  display: flex;
+  gap: 8px;
+}
+
+.stat {
+  background: rgba(255,255,255,.12);
+  padding: 8px 10px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.card {
+  background: rgba(255,255,255,.10);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 22px;
+  padding: 22px;
+  margin-bottom: 18px;
+  backdrop-filter: blur(10px);
+}
+
+h1, h2, h3 {
+  margin-top: 0;
+}
+
+.menu {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+button {
+  width: 100%;
+  min-height: 50px;
+  border: 0;
+  border-radius: 14px;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.menu button {
+  background: #2563eb;
+  color: white;
+}
+
+.menu button:nth-child(2) {
+  background: #7c3aed;
+}
+
+.menu button:nth-child(3) {
+  background: #059669;
+}
+
+.menu button:nth-child(4) {
+  background: #ea580c;
+}
+
+.question {
+  font-size: 21px;
+  line-height: 1.5;
+  margin-bottom: 18px;
+}
+
+.option {
+  background: rgba(255,255,255,.12);
+  color: white;
+  text-align: left;
+  margin: 8px 0;
+  border: 2px solid transparent;
+}
+
+.option:hover {
+  border-color: #60a5fa;
+}
+
+.correct {
+  background: #15803d !important;
+}
+
+.wrong {
+  background: #b91c1c !important;
+}
+
+.progress {
+  height: 8px;
+  background: rgba(255,255,255,.15);
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: #60a5fa;
+  transition: .3s;
+}
+
+.timer {
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.powerups {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.powerups button {
+  background: #374151;
+  color: white;
+  font-size: 13px;
+}
+
+.powerups button:disabled {
+  opacity: .4;
+}
+
+.hidden {
+  display: none;
+}
+
+.center {
+  text-align: center;
+}
+
+.big-score {
+  font-size: 48px;
+  font-weight: bold;
+  margin: 20px 0;
+}
+
+.badge {
+  display: inline-block;
+  background: #f59e0b;
+  padding: 8px 14px;
+  border-radius: 20px;
+  margin: 5px;
+  color: #111827;
+  font-weight: bold;
+}
+
+.back {
+  background: #4b5563;
+  color: white;
+  margin-top: 10px;
+}
+
+@media (max-width: 420px) {
+  .menu {
+    grid-template-columns: 1fr;
+  }
+
+  .question {
+    font-size: 18px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <div class="header">
+    <div class="logo">🧠 Brain Test</div>
+
+    <div class="stats">
+      <div class="stat">🪙 <span id="coins">100</span></div>
+      <div class="stat">⭐ <span id="xp">0</span></div>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <section id="home">
+
+    <div class="card center">
+      <h1>🧠 Brain Test Quiz</h1>
+      <p>তোমার জ্ঞান ও বুদ্ধি পরীক্ষা করো!</p>
+
+      <div class="menu">
+        <button onclick="startQuiz('all')">🎯 Start Quiz</button>
+        <button onclick="startQuiz('math')">🔢 Math</button>
+        <button onclick="startQuiz('science')">🔬 Science</button>
+        <button onclick="startQuiz('geography')">🌍 Geography</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>🏆 তোমার Progress</h3>
+      <p>Level: <b id="level">1</b></p>
+      <p>সঠিক উত্তর: <b id="correctCount">0</b></p>
+      <p>সর্বোচ্চ Score: <b id="bestScore">0</b></p>
+      <p>🔥 Streak: <b id="streak">0</b></p>
+    </div>
+
+  </section>
+
+
+  <!-- QUIZ -->
+  <section id="quiz" class="hidden">
+
+    <div class="card">
+
+      <div class="timer">
+        ⏱️ <span id="time">20</span> sec
+      </div>
+
+      <div class="progress">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+
+      <p id="questionNumber"></p>
+
+      <div id="question" class="question"></div>
+
+      <div id="options"></div>
+
+      <div class="powerups">
+        <button id="fiftyBtn" onclick="fiftyFifty()">50/50</button>
+        <button id="skipBtn" onclick="skipQuestion()">⏭️ Skip</button>
+        <button id="timeBtn" onclick="extraTime()">⏱️ +10 Sec</button>
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- RESULT -->
+  <section id="result" class="hidden">
+
+    <div class="card center">
+
+      <h1>🎉 Quiz Complete!</h1>
+
+      <div class="big-score" id="finalScore">0</div>
+
+      <p>Score</p>
+
+      <div id="resultMessage"></div>
+
+      <div>
+        <span class="badge">⭐ XP +<span id="earnedXP">0</span></span>
+        <span class="badge">🪙 Coins +<span id="earnedCoins">0</span></span>
+      </div>
+
+      <button onclick="goHome()" style="background:#2563eb;color:white;margin-top:20px;">
+        🏠 Home
+      </button>
+
+      <button onclick="startQuiz('all')" style="background:#059669;color:white;margin-top:10px;">
+        🔄 Play Again
+      </button>
+
+    </div>
+
+  </section>
+
+</div>
+
+
+<script>
+
+const questions = [
+
+  {
+    category: "math",
+    q: "একটি সংখ্যার দ্বিগুণ ২৪ হলে সংখ্যাটি কত?",
+    options: ["৮", "১০", "১২", "১৪"],
+    answer: 2
+  },
+
+  {
+    category: "math",
+    q: "ধারাটি দেখুন: 2, 4, 8, 16, ?",
+    options: ["20", "24", "32", "36"],
+    answer: 2
+  },
+
+  {
+    category: "math",
+    q: "একটি ঘড়িতে ৩টা বাজে। ঘণ্টার কাঁটা ও মিনিটের কাঁটার মধ্যে কোণ কত?",
+    options: ["60°", "90°", "120°", "180°"],
+    answer: 1
+  },
+
+  {
+    category: "science",
+    q: "মানুষের শরীরে রক্ত পাম্প করে কোন অঙ্গ?",
+    options: ["ফুসফুস", "হৃদপিণ্ড", "মস্তিষ্ক", "কিডনি"],
+    answer: 1
+  },
+
+  {
+    category: "science",
+    q: "পৃথিবীর বায়ুমণ্ডলে সবচেয়ে বেশি কোন গ্যাস আছে?",
+    options: ["অক্সিজেন", "কার্বন ডাই অক্সাইড", "নাইট্রোজেন", "হাইড্রোজেন"],
+    answer: 2
+  },
+
+  {
+    category: "science",
+    q: "জলের রাসায়নিক সংকেত কী?",
+    options: ["CO2", "H2O", "O2", "NaCl"],
+    answer: 1
+  },
+
+  {
+    category: "geography",
+    q: "ভারতের রাজধানী কোনটি?",
+    options: ["মুম্বাই", "কলকাতা", "নয়াদিল্লি", "চেন্নাই"],
+    answer: 2
+  },
+
+  {
+    category: "geography",
+    q: "পৃথিবীর বৃহত্তম মহাদেশ কোনটি?",
+    options: ["আফ্রিকা", "এশিয়া", "ইউরোপ", "অস্ট্রেলিয়া"],
+    answer: 1
+  },
+
+  {
+    category: "geography",
+    q: "ভারতের দীর্ঘতম নদী কোনটি?",
+    options: ["গঙ্গা", "যমুনা", "নর্মদা", "গোদাবরী"],
+    answer: 0
+  },
+
+  {
+    category: "math",
+    q: "যদি 5 + 3 × 2 হয়, উত্তর কত?",
+    options: ["16", "11", "13", "10"],
+    answer: 1
+  }
+
+];
+
+
+let quizQuestions = [];
+let current = 0;
+let score = 0;
+let correct = 0;
+let time = 20;
+let timer;
+let usedFifty = false;
+let usedSkip = false;
+let usedTime = false;
+
+
+let coins = Number(localStorage.getItem("coins")) || 100;
+let xp = Number(localStorage.getItem("xp")) || 0;
+let totalCorrect = Number(localStorage.getItem("correct")) || 0;
+let bestScore = Number(localStorage.getItem("bestScore")) || 0;
+let streak = Number(localStorage.getItem("streak")) || 0;
+
+
+function updateStats() {
+
+  document.getElementById("coins").textContent = coins;
+  document.getElementById("xp").textContent = xp;
+  document.getElementById("correctCount").textContent = totalCorrect;
+  document.getElementById("bestScore").textContent = bestScore;
+  document.getElementById("streak").textContent = streak;
+
+  let level = Math.floor(xp / 100) + 1;
+
+  document.getElementById("level").textContent = level;
+
+  localStorage.setItem("coins", coins);
+  localStorage.setItem("xp", xp);
+  localStorage.setItem("correct", totalCorrect);
+  localStorage.setItem("bestScore", bestScore);
+  localStorage.setItem("streak", streak);
+}
+
+
+function startQuiz(category) {
+
+  if (category === "all") {
+    quizQuestions = [...questions];
+  } else {
+    quizQuestions = questions.filter(q => q.category === category);
+  }
+
+  quizQuestions.sort(() => Math.random() - 0.5);
+
+  current = 0;
+  score = 0;
+  correct = 0;
+
+  usedFifty = false;
+  usedSkip = false;
+  usedTime = false;
+
+  document.getElementById("home").classList.add("hidden");
+  document.getElementById("result").classList.add("hidden");
+  document.getElementById("quiz").classList.remove("hidden");
+
+  document.getElementById("fiftyBtn").disabled = false;
+  document.getElementById("skipBtn").disabled = false;
+  document.getElementById("timeBtn").disabled = false;
+
+  showQuestion();
+}
+
+
+function showQuestion() {
+
+  clearInterval(timer);
+
+  if (current >= quizQuestions.length) {
+    finishQuiz();
+    return;
+  }
+
+  const q = quizQuestions[current];
+
+  document.getElementById("questionNumber").textContent =
+    "প্রশ্ন " + (current + 1) + " / " + quizQuestions.length;
+
+  document.getElementById("question").textContent = q.q;
+
+  const optionsDiv = document.getElementById("options");
+
+  optionsDiv.innerHTML = "";
+
+  q.options.forEach((option, index) => {
+
+    const button = document.createElement("button");
+
+    button.className = "option";
+    button.textContent = option;
+
+    button.onclick = () => answerQuestion(index, button);
+
+    optionsDiv.appendChild(button);
+
+  });
+
+  const percent = (current / quizQuestions.length) * 100;
+
+  document.getElementById("progressBar").style.width = percent + "%";
+
+  time = 20;
+  document.getElementById("time").textContent = time;
+
+  timer = setInterval(() => {
+
+    time--;
+
+    document.getElementById("time").textContent = time;
+
+    if (time <= 0) {
+
+      clearInterval(timer);
+
+      nextQuestion();
+
+    }
+
+  }, 1000);
+}
+
+
+function answerQuestion(index, button) {
+
+  clearInterval(timer);
+
+  const q = quizQuestions[current];
+
+  const buttons = document.querySelectorAll(".option");
+
+  buttons.forEach(b => b.disabled = true);
+
+  if (index === q.answer) {
+
+    button.classList.add("correct");
+
+    correct++;
+
+    score += 10 + Math.max(time, 0);
+
+    totalCorrect++;
+
+    xp += 10;
+
+    coins += 5;
+
+  } else {
+
+    button.classList.add("wrong");
+
+    buttons[q.answer].classList.add("correct");
+
+  }
+
+  updateStats();
+
+  setTimeout(nextQuestion, 900);
+}
+
+
+function nextQuestion() {
+
+  current++;
+
+  showQuestion();
+}
+
+
+function fiftyFifty() {
+
+  if (usedFifty) return;
+
+  usedFifty = true;
+
+  document.getElementById("fiftyBtn").disabled = true;
+
+  const q = quizQuestions[current];
+
+  const buttons = document.querySelectorAll(".option");
+
+  let removed = 0;
+
+  buttons.forEach((button, index) => {
+
+    if (index !== q.answer && removed < 2) {
+
+      button.disabled = true;
+      button.style.visibility = "hidden";
+
+      removed++;
+
+    }
+
+  });
+
+}
+
+
+function skipQuestion() {
+
+  if (usedSkip) return;
+
+  usedSkip = true;
+
+  document.getElementById("skipBtn").disabled = true;
+
+  nextQuestion();
+
+}
+
+
+function extraTime() {
+
+  if (usedTime) return;
+
+  usedTime = true;
+
+  document.getElementById("timeBtn").disabled = true;
+
+  time += 10;
+
+  document.getElementById("time").textContent = time;
+
+}
+
+
+function finishQuiz() {
+
+  clearInterval(timer);
+
+  document.getElementById("quiz").classList.add("hidden");
+  document.getElementById("result").classList.remove("hidden");
+
+  if (score > bestScore) {
+    bestScore = score;
+  }
+
+  const earnedXP = correct * 10;
+  const earnedCoins = correct * 5;
+
+  document.getElementById("finalScore").textContent = score;
+  document.getElementById("earnedXP").textContent = earnedXP;
+  document.getElementById("earnedCoins").textContent = earnedCoins;
+
+  let message = "";
+
+  if (correct === quizQuestions.length) {
+    message = "🏆 অসাধারণ! সবগুলো সঠিক!";
+    streak++;
+  } else if (correct >= quizQuestions.length / 2) {
+    message = "👏 খুব ভালো! আরও চেষ্টা করলে আরও ভালো হবে।";
+    streak++;
+  } else {
+    message = "💪 আবার চেষ্টা করুন!";
+    streak = 0;
+  }
+
+  document.getElementById("resultMessage").innerHTML =
+    "<h3>" + message + "</h3>";
+
+  updateStats();
+}
+
+
+function goHome() {
+
+  clearInterval(timer);
+
+  document.getElementById("quiz").classList.add("hidden");
+  document.getElementById("result").classList.add("hidden");
+  document.getElementById("home").classList.remove("hidden");
+
+  updateStats();
+}
+
+
+updateStats();
+
+</script>
+
+</body>
+        </html>
