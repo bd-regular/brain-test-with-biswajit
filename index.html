@@ -665,6 +665,791 @@ function goHome() {
 updateStats();
 
 </script>
+<!-- ===============================
+     BRAIN PUZZLE MODE - ADD ON
+     পুরনো কোড মুছবেন না
+================================ -->
 
+<style>
+#brainPuzzleBtn{
+  width:100%;
+  margin-top:15px;
+  padding:15px;
+  border:0;
+  border-radius:15px;
+  background:linear-gradient(135deg,#7c3aed,#ec4899);
+  color:white;
+  font-size:18px;
+  font-weight:bold;
+  cursor:pointer;
+  box-shadow:0 5px 15px rgba(0,0,0,.2);
+}
+
+#brainPuzzleBox{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:#111827;
+  z-index:99999;
+  color:white;
+  overflow:auto;
+  padding:20px;
+}
+
+.brainTop{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:15px;
+}
+
+.brainTop h2{
+  margin:0;
+}
+
+.brainClose{
+  background:#ef4444;
+  border:0;
+  color:white;
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  font-size:22px;
+}
+
+.brainStats{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:15px;
+}
+
+.brainStat{
+  background:#1f2937;
+  padding:9px 12px;
+  border-radius:12px;
+}
+
+.brainCard{
+  background:white;
+  color:#111827;
+  border-radius:20px;
+  padding:20px;
+  min-height:350px;
+  position:relative;
+  text-align:center;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);
+}
+
+.brainQuestion{
+  font-size:22px;
+  font-weight:bold;
+  margin-bottom:25px;
+}
+
+.brainAnswer{
+  display:grid;
+  gap:12px;
+}
+
+.brainAnswer button{
+  padding:14px;
+  border:0;
+  border-radius:12px;
+  background:#e5e7eb;
+  font-size:17px;
+  cursor:pointer;
+}
+
+.brainAnswer button:active{
+  transform:scale(.97);
+}
+
+.brainMessage{
+  margin-top:18px;
+  min-height:28px;
+  font-weight:bold;
+}
+
+.brainBottom{
+  display:flex;
+  gap:10px;
+  margin-top:15px;
+}
+
+.brainBottom button{
+  flex:1;
+  padding:13px;
+  border:0;
+  border-radius:12px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.hintBtn{
+  background:#facc15;
+}
+
+.nextBtn{
+  background:#22c55e;
+  color:white;
+}
+
+.dragItem{
+  width:90px;
+  height:90px;
+  border-radius:50%;
+  background:#ef4444;
+  position:absolute;
+  left:25px;
+  top:150px;
+  cursor:grab;
+  touch-action:none;
+}
+
+.dragTarget{
+  width:120px;
+  height:120px;
+  border:4px dashed #22c55e;
+  border-radius:20px;
+  position:absolute;
+  right:25px;
+  top:135px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#16a34a;
+  font-weight:bold;
+}
+
+.hiddenStar{
+  position:absolute;
+  font-size:32px;
+  cursor:pointer;
+  user-select:none;
+}
+
+.bigNumber{
+  font-size:65px;
+  font-weight:bold;
+  margin:35px;
+}
+
+#brainTimer{
+  font-size:18px;
+  margin-bottom:10px;
+}
+</style>
+
+<button id="brainPuzzleBtn" onclick="openBrainPuzzle()">
+🧠 Brain Puzzle Mode
+</button>
+
+<div id="brainPuzzleBox">
+
+  <div class="brainTop">
+    <h2>🧠 Brain Puzzle</h2>
+    <button class="brainClose" onclick="closeBrainPuzzle()">×</button>
+  </div>
+
+  <div class="brainStats">
+    <div class="brainStat">❤️ Lives: <span id="brainLives">3</span></div>
+    <div class="brainStat">🪙 Coins: <span id="brainCoins">100</span></div>
+    <div class="brainStat">🏆 Level: <span id="brainLevel">1</span></div>
+  </div>
+
+  <div id="brainTimer"></div>
+
+  <div class="brainCard" id="brainCard"></div>
+
+  <div class="brainBottom">
+    <button class="hintBtn" onclick="brainHint()">💡 Hint</button>
+    <button class="nextBtn" onclick="brainNext()">➡️ Next</button>
+  </div>
+
+</div>
+
+<script>
+
+let brainLevel = 1;
+let brainLives = 3;
+let brainCoins = 100;
+let brainSolved = false;
+let brainTimerInterval = null;
+
+/* -----------------------------
+   Open / Close
+----------------------------- */
+
+function openBrainPuzzle(){
+
+  document.getElementById("brainPuzzleBox").style.display="block";
+
+  brainLevel = Number(localStorage.getItem("brainLevel") || 1);
+  brainCoins = Number(localStorage.getItem("brainCoins") || 100);
+  brainLives = Number(localStorage.getItem("brainLives") || 3);
+
+  updateBrainStats();
+  showBrainLevel();
+
+}
+
+function closeBrainPuzzle(){
+
+  document.getElementById("brainPuzzleBox").style.display="none";
+
+  if(brainTimerInterval){
+    clearInterval(brainTimerInterval);
+  }
+
+}
+
+/* -----------------------------
+   Stats
+----------------------------- */
+
+function updateBrainStats(){
+
+  document.getElementById("brainLives").textContent=brainLives;
+  document.getElementById("brainCoins").textContent=brainCoins;
+  document.getElementById("brainLevel").textContent=brainLevel;
+
+  localStorage.setItem("brainLevel",brainLevel);
+  localStorage.setItem("brainCoins",brainCoins);
+  localStorage.setItem("brainLives",brainLives);
+
+}
+
+/* -----------------------------
+   Level Loader
+----------------------------- */
+
+function showBrainLevel(){
+
+  brainSolved=false;
+
+  if(brainTimerInterval){
+    clearInterval(brainTimerInterval);
+  }
+
+  document.getElementById("brainTimer").textContent="";
+
+  const card=document.getElementById("brainCard");
+
+  /* LEVEL 1 */
+  if(brainLevel===1){
+
+    card.innerHTML=`
+      <div class="brainQuestion">
+        Which one is the biggest?
+      </div>
+
+      <div class="brainAnswer">
+
+        <button onclick="brainWrong()">🐘 Elephant</button>
+
+        <button onclick="brainWrong()">🐋 Whale</button>
+
+        <button onclick="brainCorrect()">🌍 Earth</button>
+
+      </div>
+
+      <div class="brainMessage" id="brainMessage"></div>
+    `;
+
+  }
+
+  /* LEVEL 2 */
+  else if(brainLevel===2){
+
+    card.innerHTML=`
+      <div class="brainQuestion">
+        Tap the RED button.
+      </div>
+
+      <div class="brainAnswer">
+
+        <button style="background:blue;color:white"
+        onclick="brainWrong()">RED</button>
+
+        <button style="background:red;color:white"
+        onclick="brainCorrect()">RED</button>
+
+        <button style="background:green;color:white"
+        onclick="brainWrong()">BLUE</button>
+
+      </div>
+
+      <div class="brainMessage" id="brainMessage"></div>
+    `;
+
+  }
+
+  /* LEVEL 3 */
+  else if(brainLevel===3){
+
+    card.innerHTML=`
+      <div class="brainQuestion">
+        Put the red ball inside the green box.
+      </div>
+
+      <div class="dragTarget" id="dragTarget">
+        DROP HERE
+      </div>
+
+      <div class="dragItem" id="dragItem"></div>
+
+      <div class="brainMessage" id="brainMessage"></div>
+    `;
+
+    setupDrag();
+
+  }
+
+  /* LEVEL 4 */
+  else if(brainLevel===4){
+
+    card.innerHTML=`
+      <div class="brainQuestion">
+        Find the hidden ⭐
+      </div>
+
+      <div class="hiddenStar"
+           style="left:20px;top:80px"
+           onclick="brainWrong()">⭐</div>
+
+      <div class="hiddenStar"
+           style="right:30px;top:200px"
+           onclick="brainCorrect()">⭐</div>
+
+      <div class="hiddenStar"
+           style="left:45%;bottom:30px"
+           onclick="brainWrong()">⭐</div>
+
+      <div class="brainMessage" id="brainMessage"></div>
+    `;
+
+  }
+
+  /* LEVEL 5 */
+  else if(brainLevel===5){
+
+    card.innerHTML=`
+      <div class="brainQuestion">
+        What comes next?
+      </div>
+
+      <div class="bigNumber">
+        1 → 2 → 4 → 8 → ?
+      </div>
+
+      <div class="brainAnswer">
+
+        <button onclick="brainWrong()">10</button>
+
+        <button onclick="brainCorrect()">16</button>
+
+        <button onclick="brainWrong()">12</button>
+
+      </div>
+
+      <div class="brainMessage" id="brainMessage"></div>
+    `;
+
+  }
+
+  /* LEVEL 6 */
+  else if(brainLevel===6){
+
+    card.innerHTML=`
+      <div class="brainQuestion">
+        Don't touch the screen for 5 seconds!
+      </div>
+
+      <div class="bigNumber">🤫</div>
+
+      <div class="brainMessage" id="brainMessage">
+        Wait...
+      </div>
+    `;
+
+    let seconds=5;
+
+    document.getElementById("brainTimer").textContent=
+      "⏱️ "+seconds+" seconds";
+
+    brainTimerInterval=setInterval(()=>{
+
+      seconds--;
+
+      document.getElementById("brainTimer").textContent=
+        "⏱️ "+seconds+" seconds";
+
+      if(seconds<=0){
+
+        clearInterval(brainTimerInterval);
+
+        brainCorrect();
+
+      }
+
+    },1000);
+
+  }
+
+  /* LEVEL 7 */
+  else if(brainLevel===7){
+
+    card.innerHTML=`
+      <div class="brainQuestion">
+        Which number is different?
+      </div>
+
+      <div class="brainAnswer">
+
+        <button onclick="brainWrong()">2222</button>
+
+        <button onclick="brainWrong()">2222</button>
+
+        <button onclick="brainCorrect()">2223</button>
+
+        <button onclick="brainWrong()">2222</button>
+
+      </div>
+
+      <div class="brainMessage" id="brainMessage"></div>
+    `;
+
+  }
+
+  /* LEVEL 8 */
+  else if(brainLevel===8){
+
+    card.innerHTML=`
+      <div class="brainQuestion">
+        Click the word "START"
+      </div>
+
+      <div class="brainAnswer">
+
+        <button onclick="brainWrong()">START</button>
+
+        <button onclick="brainWrong()">GO</button>
+
+        <button onclick="brainCorrect()">START</button>
+
+      </div>
+
+      <div class="brainMessage" id="brainMessage"></div>
+    `;
+
+  }
+
+  /* LEVEL 9 */
+  else if(brainLevel===9){
+
+    card.innerHTML=`
+      <div class="brainQuestion">
+        Can you solve this?
+        <br><br>
+        🐔 + 🐔 = 4
+        <br>
+        🐔 = ?
+      </div>
+
+      <div class="brainAnswer">
+
+        <button onclick="brainWrong()">1</button>
+
+        <button onclick="brainCorrect()">2</button>
+
+        <button onclick="brainWrong()">4</button>
+
+      </div>
+
+      <div class="brainMessage" id="brainMessage"></div>
+    `;
+
+  }
+
+  /* LEVEL 10 */
+  else if(brainLevel===10){
+
+    card.innerHTML=`
+      <div class="brainQuestion">
+        🎉 FINAL PUZZLE 🎉
+        <br><br>
+        What should you do first?
+      </div>
+
+      <div class="brainAnswer">
+
+        <button onclick="brainWrong()">Answer</button>
+
+        <button onclick="brainCorrect()">Read the question</button>
+
+        <button onclick="brainWrong()">Close the game</button>
+
+      </div>
+
+      <div class="brainMessage" id="brainMessage"></div>
+    `;
+
+  }
+
+  else{
+
+    card.innerHTML=`
+      <div class="brainQuestion">
+        🎉 More puzzles coming soon!
+      </div>
+
+      <div style="font-size:60px;margin:40px">
+        🧠🏆
+      </div>
+
+      <div class="brainMessage">
+        You completed all current levels!
+      </div>
+    `;
+
+  }
+
+}
+
+/* -----------------------------
+   Correct Answer
+----------------------------- */
+
+function brainCorrect(){
+
+  if(brainSolved) return;
+
+  brainSolved=true;
+
+  if(brainTimerInterval){
+    clearInterval(brainTimerInterval);
+  }
+
+  brainCoins += 10;
+
+  const msg=document.getElementById("brainMessage");
+
+  if(msg){
+    msg.innerHTML="🎉 Correct! +10 Coins";
+    msg.style.color="#16a34a";
+  }
+
+  updateBrainStats();
+
+}
+
+/* -----------------------------
+   Wrong Answer
+----------------------------- */
+
+function brainWrong(){
+
+  if(brainSolved) return;
+
+  brainLives--;
+
+  const msg=document.getElementById("brainMessage");
+
+  if(msg){
+
+    msg.innerHTML="❌ Wrong! Try again.";
+
+    msg.style.color="#dc2626";
+
+  }
+
+  updateBrainStats();
+
+  if(brainLives<=0){
+
+    setTimeout(()=>{
+
+      alert("❤️ No lives left! Try again later.");
+
+      brainLives=3;
+
+      updateBrainStats();
+
+      showBrainLevel();
+
+    },500);
+
+  }
+
+}
+
+/* -----------------------------
+   Next Level
+----------------------------- */
+
+function brainNext(){
+
+  if(!brainSolved){
+
+    const msg=document.getElementById("brainMessage");
+
+    if(msg){
+
+      msg.innerHTML="⚠️ Solve the puzzle first!";
+
+      msg.style.color="#d97706";
+
+    }
+
+    return;
+
+  }
+
+  brainLevel++;
+
+  updateBrainStats();
+
+  showBrainLevel();
+
+}
+
+/* -----------------------------
+   Hint
+----------------------------- */
+
+function brainHint(){
+
+  if(brainCoins<20){
+
+    alert("🪙 You need 20 coins for a hint.");
+
+    return;
+
+  }
+
+  brainCoins-=20;
+
+  updateBrainStats();
+
+  let hint="Look carefully!";
+
+  if(brainLevel===1)
+    hint="Think about the size of the objects.";
+
+  else if(brainLevel===2)
+    hint="Don't trust only the text.";
+
+  else if(brainLevel===3)
+    hint="Drag the ball into the box.";
+
+  else if(brainLevel===4)
+    hint="There are several stars. One is correct.";
+
+  else if(brainLevel===5)
+    hint="The number doubles each time.";
+
+  else if(brainLevel===6)
+    hint="Just wait.";
+
+  else if(brainLevel===7)
+    hint="Look at every digit.";
+
+  else if(brainLevel===8)
+    hint="There are two START buttons.";
+
+  else if(brainLevel===9)
+    hint="Two chickens make four.";
+
+  else if(brainLevel===10)
+    hint="Read before answering.";
+
+  alert("💡 Hint:\n"+hint);
+
+}
+
+/* -----------------------------
+   Drag Puzzle
+----------------------------- */
+
+function setupDrag(){
+
+  const item=document.getElementById("dragItem");
+  const target=document.getElementById("dragTarget");
+
+  let dragging=false;
+  let offsetX=0;
+  let offsetY=0;
+
+  function startDrag(e){
+
+    dragging=true;
+
+    const rect=item.getBoundingClientRect();
+
+    const point=e.touches ? e.touches[0] : e;
+
+    offsetX=point.clientX-rect.left;
+    offsetY=point.clientY-rect.top;
+
+    e.preventDefault();
+
+  }
+
+  function moveDrag(e){
+
+    if(!dragging) return;
+
+    const point=e.touches ? e.touches[0] : e;
+
+    const card=document.getElementById("brainCard");
+    const rect=card.getBoundingClientRect();
+
+    item.style.left=
+      (point.clientX-rect.left-offsetX)+"px";
+
+    item.style.top=
+      (point.clientY-rect.top-offsetY)+"px";
+
+    e.preventDefault();
+
+  }
+
+  function endDrag(){
+
+    if(!dragging) return;
+
+    dragging=false;
+
+    const a=item.getBoundingClientRect();
+    const b=target.getBoundingClientRect();
+
+    const overlap=
+      !(a.right<b.left ||
+        a.left>b.right ||
+        a.bottom<b.top ||
+        a.top>b.bottom);
+
+    if(overlap){
+
+      brainCorrect();
+
+    }
+
+  }
+
+  item.addEventListener("mousedown",startDrag);
+  document.addEventListener("mousemove",moveDrag);
+  document.addEventListener("mouseup",endDrag);
+
+  item.addEventListener("touchstart",startDrag,{passive:false});
+  document.addEventListener("touchmove",moveDrag,{passive:false});
+  document.addEventListener("touchend",endDrag);
+
+}
+
+</script>
+
+<!-- ===== END BRAIN PUZZLE ADD-ON ===== -->
 </body>
         </html>
