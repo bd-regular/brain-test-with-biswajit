@@ -1451,5 +1451,923 @@ function setupDrag(){
 </script>
 
 <!-- ===== END BRAIN PUZZLE ADD-ON ===== -->
+  <!-- =========================================
+     BRAIN TEST EXTRA LEVELS 11 - 25
+     পুরনো কোড মুছবেন না
+========================================= -->
+
+<style>
+
+.extraProgress{
+  margin:12px 0;
+  background:#374151;
+  height:10px;
+  border-radius:20px;
+  overflow:hidden;
+}
+
+.extraProgressBar{
+  height:100%;
+  width:44%;
+  background:linear-gradient(90deg,#22c55e,#06b6d4);
+  transition:.4s;
+}
+
+.extraScore{
+  background:#312e81;
+  padding:10px;
+  border-radius:12px;
+  margin-bottom:12px;
+}
+
+.puzzleBig{
+  font-size:38px;
+  font-weight:bold;
+  margin:30px 0;
+}
+
+.colorBox{
+  width:90px;
+  height:90px;
+  margin:15px auto;
+  border-radius:15px;
+}
+
+.memoryBox{
+  font-size:55px;
+  margin:35px;
+  min-height:70px;
+}
+
+.shakeButton{
+  animation:shake .35s infinite;
+}
+
+@keyframes shake{
+  0%{transform:translateX(0)}
+  25%{transform:translateX(-5px)}
+  50%{transform:translateX(5px)}
+  75%{transform:translateX(-5px)}
+  100%{transform:translateX(0)}
+}
+
+</style>
+
+<script>
+
+/* =========================================
+   EXTRA GAME DATA
+========================================= */
+
+let brainScore =
+  Number(localStorage.getItem("brainScore") || 0);
+
+let brainCombo =
+  Number(localStorage.getItem("brainCombo") || 0);
+
+
+/* =========================================
+   OLD FUNCTION SAVE
+   পুরনো Level 1-10 থাকবে
+========================================= */
+
+const oldShowBrainLevel = showBrainLevel;
+
+
+/* =========================================
+   NEW LEVEL FUNCTION
+========================================= */
+
+showBrainLevel = function(){
+
+  brainSolved = false;
+
+  if(brainTimerInterval){
+    clearInterval(brainTimerInterval);
+  }
+
+  document.getElementById("brainTimer").textContent="";
+
+  const card =
+    document.getElementById("brainCard");
+
+  /* OLD LEVELS */
+
+  if(brainLevel <= 10){
+
+    oldShowBrainLevel();
+
+    addExtraScorePanel();
+
+    return;
+
+  }
+
+
+  /* LEVEL 11 */
+
+  if(brainLevel === 11){
+
+    card.innerHTML = `
+
+      <div class="brainQuestion">
+        Which number doesn't belong?
+      </div>
+
+      <div class="puzzleBig">
+        2 &nbsp; 4 &nbsp; 6 &nbsp; 8 &nbsp; 11
+      </div>
+
+      <div class="brainAnswer">
+
+        <button onclick="extraWrong()">2</button>
+
+        <button onclick="extraWrong()">6</button>
+
+        <button onclick="extraWrong()">8</button>
+
+        <button onclick="extraCorrect()">11</button>
+
+      </div>
+
+      <div class="brainMessage" id="brainMessage"></div>
+
+    `;
+
+  }
+
+
+  /* LEVEL 12 */
+
+  else if(brainLevel === 12){
+
+    card.innerHTML = `
+
+      <div class="brainQuestion">
+        Find the different emoji
+      </div>
+
+      <div class="puzzleBig">
+        😀 😀 😀 😃 😀 😀
+      </div>
+
+      <div class="brainAnswer">
+
+        <button onclick="extraWrong()">1</button>
+        <button onclick="extraWrong()">2</button>
+        <button onclick="extraCorrect()">4</button>
+        <button onclick="extraWrong()">6</button>
+
+      </div>
+
+      <div class="brainMessage" id="brainMessage"></div>
+
+    `;
+
+  }
+
+
+  /* LEVEL 13 */
+
+  else if(brainLevel === 13){
+
+    card.innerHTML = `
+
+      <div class="brainQuestion">
+        What comes next?
+      </div>
+
+      <div class="puzzleBig">
+        3 → 6 → 12 → 24 → ?
+      </div>
+
+      <div class="brainAnswer">
+
+        <button onclick="extraWrong()">36</button>
+
+        <button onclick="extraCorrect()">48</button>
+
+        <button onclick="extraWrong()">50</button>
+
+        <button onclick="extraWrong()">42</button>
+
+      </div>
+
+      <div class="brainMessage" id="brainMessage"></div>
+
+    `;
+
+  }
+
+
+  /* LEVEL 14 */
+
+  else if(brainLevel === 14){
+
+    card.innerHTML = `
+
+      <div class="brainQuestion">
+        Which one is different?
+      </div>
+
+      <div class="puzzleBig">
+        🍎 🍎 🍎 🍌 🍎
+      </div>
+
+      <div class="brainAnswer">
+
+        <button onclick="extraWrong()">1</button>
+        <button onclick="extraWrong()">2</button>
+        <button onclick="extraCorrect()">4</button>
+        <button onclick="extraWrong()">5</button>
+
+      </div>
+
+      <div class="brainMessage" id="brainMessage"></div>
+
+    `;
+
+  }
+
+
+  /* LEVEL 15 */
+
+  else if(brainLevel === 15){
+
+    card.innerHTML = `
+
+      <div class="brainQuestion">
+        Complete the pattern
+      </div>
+
+      <div class="puzzleBig">
+        🔴 🔵 🔴 🔵 🔴 ?
+      </div>
+
+      <div class="brainAnswer">
+
+        <button onclick="extraCorrect()">🔵</button>
+
+        <button onclick="extraWrong()">🔴</button>
+
+        <button onclick="extraWrong()">🟢</button>
+
+      </div>
+
+      <div class="brainMessage" id="brainMessage"></div>
+
+    `;
+
+  }
+
+
+  /* LEVEL 16 */
+
+  else if(brainLevel === 16){
+
+    card.innerHTML = `
+
+      <div class="brainQuestion">
+        Which is the smallest?
+      </div>
+
+      <div class="puzzleBig">
+        0.5 &nbsp; 0.05 &nbsp; 0.005
+      </div>
+
+      <div class="brainAnswer">
+
+        <button onclick="extraWrong()">0.5</button>
+
+        <button onclick="extraWrong()">0.05</button>
+
+        <button onclick="extraCorrect()">0.005</button>
+
+      </div>
+
+      <div class="brainMessage" id="brainMessage"></div>
+
+    `;
+
+  }
+
+
+  /* LEVEL 17 */
+
+  else if(brainLevel === 17){
+
+    card.innerHTML = `
+
+      <div class="brainQuestion">
+        Don't choose the biggest number.
+      </div>
+
+      <div class="brainAnswer">
+
+        <button onclick="extraCorrect()">1</button>
+
+        <button onclick="extraWrong()">999</button>
+
+        <button onclick="extraWrong()">500</button>
+
+        <button onclick="extraWrong()">100</button>
+
+      </div>
+
+      <div class="brainMessage" id="brainMessage"></div>
+
+    `;
+
+  }
+
+
+  /* LEVEL 18 */
+
+  else if(brainLevel === 18){
+
+    card.innerHTML = `
+
+      <div class="brainQuestion">
+        How many triangles?
+      </div>
+
+      <div class="puzzleBig">
+        🔺 🔺 🔺
+      </div>
+
+      <div class="brainAnswer">
+
+        <button onclick="extraWrong()">2</button>
+
+        <button onclick="extraCorrect()">3</button>
+
+        <button onclick="extraWrong()">4</button>
+
+        <button onclick="extraWrong()">6</button>
+
+      </div>
+
+      <div class="brainMessage" id="brainMessage"></div>
+
+    `;
+
+  }
+
+
+  /* LEVEL 19 */
+
+  else if(brainLevel === 19){
+
+    card.innerHTML = `
+
+      <div class="brainQuestion">
+        Find the number hidden in the question.
+      </div>
+
+      <div class="puzzleBig">
+        Level 19
+      </div>
+
+      <div class="brainAnswer">
+
+        <button onclick="extraWrong()">9</button>
+
+        <button onclick="extraCorrect()">19</button>
+
+        <button onclick="extraWrong()">91</button>
+
+      </div>
+
+      <div class="brainMessage" id="brainMessage"></div>
+
+    `;
+
+  }
+
+
+  /* LEVEL 20 */
+
+  else if(brainLevel === 20){
+
+    card.innerHTML = `
+
+      <div class="brainQuestion">
+        🏆 LEVEL 20 🏆
+        <br><br>
+        What is 10 + 10 × 0?
+      </div>
+
+      <div class="brainAnswer">
+
+        <button onclick="extraCorrect()">10</button>
+
+        <button onclick="extraWrong()">20</button>
+
+        <button onclick="extraWrong()">0</button>
+
+      </div>
+
+      <div class="brainMessage" id="brainMessage"></div>
+
+    `;
+
+  }
+
+
+  /* LEVEL 21 */
+
+  else if(brainLevel === 21){
+
+    card.innerHTML = `
+
+      <div class="brainQuestion">
+        Which word is written twice?
+      </div>
+
+      <div class="puzzleBig">
+        CAT DOG CAT BIRD
+      </div>
+
+      <div class="brainAnswer">
+
+        <button onclick="extraCorrect()">CAT</button>
+
+        <button onclick="extraWrong()">DOG</button>
+
+        <button onclick="extraWrong()">BIRD</button>
+
+      </div>
+
+      <div class="brainMessage" id="brainMessage"></div>
+
+    `;
+
+  }
+
+
+  /* LEVEL 22 */
+
+  else if(brainLevel === 22){
+
+    card.innerHTML = `
+
+      <div class="brainQuestion">
+        Which one is NOT a fruit?
+      </div>
+
+      <div class="brainAnswer">
+
+        <button onclick="extraWrong()">🍎 Apple</button>
+
+        <button onclick="extraWrong()">🍌 Banana</button>
+
+        <button onclick="extraCorrect()">🥕 Carrot</button>
+
+        <button onclick="extraWrong()">🍊 Orange</button>
+
+      </div>
+
+      <div class="brainMessage" id="brainMessage"></div>
+
+    `;
+
+  }
+
+
+  /* LEVEL 23 */
+
+  else if(brainLevel === 23){
+
+    card.innerHTML = `
+
+      <div class="brainQuestion">
+        Remember this number!
+      </div>
+
+      <div class="memoryBox" id="memoryNumber">
+        7392
+      </div>
+
+      <div class="brainMessage">
+        Remember it for 3 seconds...
+      </div>
+
+    `;
+
+    setTimeout(()=>{
+
+      const box =
+        document.getElementById("memoryNumber");
+
+      if(box){
+
+        box.innerHTML = "❓";
+
+        setTimeout(()=>{
+
+          box.parentElement.innerHTML += `
+
+            <div class="brainAnswer">
+
+              <button onclick="extraWrong()">7395</button>
+
+              <button onclick="extraCorrect()">7392</button>
+
+              <button onclick="extraWrong()">7932</button>
+
+            </div>
+
+            <div class="brainMessage"
+                 id="brainMessage"></div>
+
+          `;
+
+        },500);
+
+      }
+
+    },3000);
+
+  }
+
+
+  /* LEVEL 24 */
+
+  else if(brainLevel === 24){
+
+    card.innerHTML = `
+
+      <div class="brainQuestion">
+        Tap the button that says
+        "DON'T TAP ME"
+      </div>
+
+      <div class="brainAnswer">
+
+        <button onclick="extraWrong()">TAP ME</button>
+
+        <button onclick="extraCorrect()">DON'T TAP ME</button>
+
+        <button onclick="extraWrong()">CLICK ME</button>
+
+      </div>
+
+      <div class="brainMessage" id="brainMessage"></div>
+
+    `;
+
+  }
+
+
+  /* LEVEL 25 */
+
+  else if(brainLevel === 25){
+
+    card.innerHTML = `
+
+      <div class="brainQuestion">
+        🎉 SUPER BRAIN TEST 🎉
+        <br><br>
+        Which answer should you choose?
+      </div>
+
+      <div class="puzzleBig">
+        🧠
+      </div>
+
+      <div class="brainAnswer">
+
+        <button onclick="extraWrong()">Random</button>
+
+        <button onclick="extraCorrect()">Think Carefully</button>
+
+        <button onclick="extraWrong()">Guess</button>
+
+      </div>
+
+      <div class="brainMessage" id="brainMessage"></div>
+
+    `;
+
+  }
+
+
+  else{
+
+    card.innerHTML = `
+
+      <div class="brainQuestion">
+        🏆 YOU ARE A SUPER BRAIN!
+      </div>
+
+      <div class="puzzleBig">
+        🧠 👑 🏆
+      </div>
+
+      <div class="brainMessage">
+        25 Levels Completed!
+      </div>
+
+    `;
+
+  }
+
+
+  addExtraScorePanel();
+
+};
+
+
+/* =========================================
+   SCORE PANEL
+========================================= */
+
+function addExtraScorePanel(){
+
+  const old =
+    document.querySelector(".extraScore");
+
+  if(old) old.remove();
+
+  const card =
+    document.getElementById("brainCard");
+
+  const panel =
+    document.createElement("div");
+
+  panel.className="extraScore";
+
+  panel.innerHTML=`
+
+    ⭐ Score:
+    <b>${brainScore}</b>
+
+    &nbsp;&nbsp;
+
+    🔥 Combo:
+    <b>${brainCombo}</b>
+
+    <div class="extraProgress">
+      <div class="extraProgressBar"
+           style="width:${Math.min(brainLevel*4,100)}%">
+      </div>
+    </div>
+
+    Level ${brainLevel} / 25
+
+  `;
+
+  card.insertBefore(panel,card.firstChild);
+
+}
+
+
+/* =========================================
+   CORRECT
+========================================= */
+
+function extraCorrect(){
+
+  if(brainSolved) return;
+
+  brainSolved=true;
+
+  brainCombo++;
+
+  let reward=10;
+
+  if(brainCombo>=3){
+
+    reward+=10;
+
+  }
+
+  brainCoins+=reward;
+
+  brainScore+=reward;
+
+  const msg =
+    document.getElementById("brainMessage");
+
+  if(msg){
+
+    msg.innerHTML =
+      "🎉 Correct! +" + reward +
+      " Coins & ⭐ Score";
+
+    msg.style.color="#16a34a";
+
+  }
+
+  localStorage.setItem(
+    "brainScore",
+    brainScore
+  );
+
+  localStorage.setItem(
+    "brainCombo",
+    brainCombo
+  );
+
+  updateBrainStats();
+
+  addExtraScorePanel();
+
+}
+
+
+/* =========================================
+   WRONG
+========================================= */
+
+function extraWrong(){
+
+  if(brainSolved) return;
+
+  brainLives--;
+
+  brainCombo=0;
+
+  const msg =
+    document.getElementById("brainMessage");
+
+  if(msg){
+
+    msg.innerHTML=
+      "❌ Wrong! Combo reset.";
+
+    msg.style.color="#dc2626";
+
+  }
+
+  localStorage.setItem(
+    "brainCombo",
+    brainCombo
+  );
+
+  updateBrainStats();
+
+  if(brainLives<=0){
+
+    setTimeout(()=>{
+
+      alert(
+        "❤️ No lives left!\n" +
+        "Your lives have been restored."
+      );
+
+      brainLives=3;
+
+      updateBrainStats();
+
+      showBrainLevel();
+
+    },500);
+
+  }
+
+}
+
+
+/* =========================================
+   BETTER NEXT BUTTON
+========================================= */
+
+const oldBrainNext = brainNext;
+
+brainNext=function(){
+
+  if(!brainSolved){
+
+    const msg =
+      document.getElementById("brainMessage");
+
+    if(msg){
+
+      msg.innerHTML=
+        "⚠️ আগে puzzle solve করুন!";
+
+      msg.style.color="#d97706";
+
+    }
+
+    return;
+
+  }
+
+  brainLevel++;
+
+  updateBrainStats();
+
+  showBrainLevel();
+
+};
+
+
+/* =========================================
+   EXTRA HINTS
+========================================= */
+
+const oldBrainHint = brainHint;
+
+brainHint=function(){
+
+  if(brainLevel<=10){
+
+    oldBrainHint();
+
+    return;
+
+  }
+
+  if(brainCoins<20){
+
+    alert(
+      "🪙 Hint নিতে 20 coins লাগবে!"
+    );
+
+    return;
+
+  }
+
+  brainCoins-=20;
+
+  updateBrainStats();
+
+  let hint="";
+
+  switch(brainLevel){
+
+    case 11:
+      hint="যে সংখ্যাটি জোড় নয় সেটি খুঁজুন।";
+      break;
+
+    case 12:
+      hint="একটি emoji দেখতে অন্যগুলোর থেকে আলাদা।";
+      break;
+
+    case 13:
+      hint="প্রতিবার সংখ্যা দ্বিগুণ হচ্ছে।";
+      break;
+
+    case 14:
+      hint="সবগুলো ফল নয়।";
+      break;
+
+    case 15:
+      hint="লাল-নীল pattern লক্ষ্য করুন।";
+      break;
+
+    case 16:
+      hint="Decimal সংখ্যাগুলো ভালো করে দেখুন।";
+      break;
+
+    case 17:
+      hint="Question-এর কথাটাই মনে রাখুন।";
+      break;
+
+    case 18:
+      hint="ছবিতে তিনটি triangle আছে।";
+      break;
+
+    case 19:
+      hint="Level number-এর দিকে তাকান।";
+      break;
+
+    case 20:
+      hint="আগে multiplication করুন।";
+      break;
+
+    case 21:
+      hint="একটি word দুইবার এসেছে।";
+      break;
+
+    case 22:
+      hint="Carrot fruit নয়।";
+      break;
+
+    case 23:
+      hint="মনে রাখা সংখ্যাটি 7392।";
+      break;
+
+    case 24:
+      hint="যেটা বলা হয়েছে সেটাই করুন।";
+      break;
+
+    case 25:
+      hint="Guess নয়, ভাবুন।";
+      break;
+
+  }
+
+  alert("💡 Hint:\n"+hint);
+
+};
+
+</script>
+
+<!-- =========================================
+     END EXTRA LEVELS
+========================================= -->
 </body>
         </html>
